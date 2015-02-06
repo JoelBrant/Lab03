@@ -1,8 +1,10 @@
 #include "Password.h"
 //fill in includes, don't forget namespaces
-
+#include "Keyboard.h"
+#include "Readfile.h"
 #include <iostream>
 using namespace std;
+using namespace CSC2110;
 
 void addWords(Password* fh)
 {
@@ -32,7 +34,6 @@ void guessWords(Password* fh)
    while (numLeft > 1)  //terminate if the password has been identified, or there is no valid password (user entry error)
    {
       int best_guess_index = fh->bestGuess();
-
       String* best_guess_word = fh->getOriginalWord(best_guess_index);
       cout << "You should guess \"";
       best_guess_word->displayString();

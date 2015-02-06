@@ -14,13 +14,13 @@ Password::Password() //constructor
 
 Password::~Password() //destructor (there is work to do here, delete the individual words)
 {
-	for (int i = 0; i < viable_words->size(); i++)
+	for (int i = 1; i <= viable_words->size(); i++)
 	{
 		viable_words->remove(i);
 	}
 	delete viable_words;
 	
-	for (int i = 0; i < all_words->size(); i++)
+	for (int i = 1; i <= all_words->size(); i++)
 	{
 		all_words->remove(i);
 	}
@@ -32,11 +32,13 @@ void Password::addWord(String* word) //add a word to the list of possible passwo
    //if word is the first word, store its length
    
    if (len == 0)
-   	len = word->length();
-   if (word->length() != len)
    {
-   	cout << "The length of the words are not the same. Please try again.\n"
-   	break;
+   	len = word->length();
+   }
+   if (len != word->length())
+   {
+   	cout << "The length of the words are not the same. Please try again.\n";
+   	return;
    }
    else
    {
@@ -47,12 +49,19 @@ void Password::addWord(String* word) //add a word to the list of possible passwo
 
 void Password::guess(int try_password, int num_matches) //index of guessed word in the list of all words (1-based), number of matches reported by fallout 3, update viable passwords list
 {
+	
+	ListArrayIterator<String>* iter = viable_words->iterator();
 	int matches;
-	for (int i = 0; i < viable_words->size(); i++)
+	delete viable_words;
+	viable_words = new ListArray<String>();
+	while (iter->hasNext())
 	{
-		matches = getNumMatches(viable_words->get(try_password-1), viable_words->get(i));
-		if (matches < num_matches)
-			viable_words->remove(i);
+		String* str = iter->next();
+		matches = getNumMatches(str, all_words->get(try_password));
+		if (matches == num_matches)
+		{
+			viable_words->add(str);
+		}
 	}
 }
 
@@ -63,25 +72,42 @@ int Password::getNumberOfPasswordsLeft() //returns the number of possible passwo
 
 int Password::getNumMatches(String* curr_word, String* word_guess)
 {
-	
+	int matches = 0;
+	for(int x = 0; x < len; x++ )
+	{	
+		if(curr_word->charAt(x) == word_guess->charAt(x))
+		{		
+			matches++;
+		}
+	}
+	return matches;
 }
 
-void displayViableWords() //display the current list of possible passwords
+void Password::displayViableWords() //display the current list of possible passwords
 {
-	/*
-	ListArrayIterator<String>* iter = new ListArrayIterator(viable_words, viable_words->size());
+	
+	ListArrayIterator<String>* iter = viable_words->iterator();
+	cout << endl;
 	while (iter->hasNext())
+	{
 		iter->next()->displayString();
-	*/
-	for (int i = 0; i < viable_words->size(); i++)
+		cout << endl;
+	}
+	cout << endl;
+	/*
+	cout << endl;
+	for (int i = 1; i <= viable_words->size(); i++)
 	{
 		viable_words->get(i)->displayString();
+		cout << endl;
 	}
+	cout << endl;
+	*/
 }
 
-String* getOriginalWord(int index) //get a word from the original list of all passwords, 1-based
+String* Password::getOriginalWord(int index) //get a word from the original list of all passwords, 1-based
 {
-	return all_words->get(index-1);
+	return all_words->get(index);
 }
 
 int Password::bestGuess()
@@ -114,7 +140,6 @@ int Password::bestGuess()
          count_num_matches[num_matches]++;
       }
       delete viable_iter;
-
       //find the largest number in the count_num_matches array
       //the largest number indicates the guess that will generate the most eliminations
       int most_num_matches = 0;
